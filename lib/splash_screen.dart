@@ -4,7 +4,6 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'sign_in.dart';
 
 // Splash screen widget that shows animated NullByte PC logo

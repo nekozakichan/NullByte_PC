@@ -71,6 +71,15 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/logo.png
+    - assets/images/asus_rog_strix.png
+    - assets/images/msi_stealth.png
+    - assets/images/asus_rog_flow.png  
+    - assets/images/razer_blade.png
+    - assets/images/alienware_m17.png
+    - assets/images/corsair_bundle.png
+    - assets/images/gigabyte_aorus.png
+    - assets/images/asus_tuf.jpg
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

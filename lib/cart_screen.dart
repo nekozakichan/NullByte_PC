@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:npc/home_page.dart';
+import 'models/cart_model.dart';
 
 // Cart Screen Widget
 class CartScreen extends StatefulWidget {
@@ -15,51 +16,12 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  // Track which nav item is selected
-  int _selectedIndex = 0; // Cart doesn't have a nav index, but keep for consistency
-
   // Dark background color used throughout your UI
   static const backgroundColor = Color(0xFF121212);
   static const redColor = Color(0xFFEB2316);
   static const cardColor = Color(0xFF1E1E1E);
 
-  // Sample cart items
-  List<Map<String, dynamic>> cartItems = [
-    {
-      'tag': 'ASUS',
-      'title': 'ASUS ROG Strix G15 - RTX 4080',
-      'price': 2499.0,
-      'quantity': 1,
-    },
-    {
-      'tag': 'Razer',
-      'title': 'Razer Blade 15 - Advanced Edition',
-      'price': 2899.0,
-      'quantity': 1,
-    },
-    {
-      'tag': 'Corsair',
-      'title': 'Corsair Gaming Peripherals Bundle',
-      'price': 299.0,
-      'quantity': 2,
-    },
-  ];
-
-  // Calculate total price
-  double get totalPrice {
-    return cartItems.fold(
-      0,
-      (sum, item) => sum + (item['price'] * item['quantity']),
-    );
-  }
-
-  // Calculate total items
-  int get totalItems {
-    return cartItems.fold<int>(
-      0,
-      (sum, item) => sum + (item['quantity'] as int),
-    );
-  }
+  // Cart is managed by CartModel (singleton)
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +48,7 @@ class _CartScreenState extends State<CartScreen> {
         ),
         centerTitle: false,
       ),
-      body: cartItems.isEmpty
+        body: CartModel.instance.items.isEmpty
           ? // Empty Cart State
           Center(
               child: Column(
@@ -124,7 +86,10 @@ class _CartScreenState extends State<CartScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 32, vertical: 12),
                     ),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const HomePage()),
+                    ),
                     child: const Text('Continue Shopping'),
                   ),
                 ],
@@ -139,9 +104,9 @@ class _CartScreenState extends State<CartScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: ListView.builder(
-                      itemCount: cartItems.length,
+                      itemCount: CartModel.instance.items.length,
                       itemBuilder: (context, index) {
-                        final item = cartItems[index];
+                        final item = CartModel.instance.items[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: Container(
@@ -152,7 +117,7 @@ class _CartScreenState extends State<CartScreen> {
                             padding: const EdgeInsets.all(12),
                             child: Row(
                               children: [
-                                // Product Image Placeholder
+                                // Product Image
                                 Container(
                                   width: 80,
                                   height: 80,
@@ -160,14 +125,20 @@ class _CartScreenState extends State<CartScreen> {
                                     color: Colors.black,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      'Image',
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.3),
-                                        fontSize: 10,
-                                      ),
-                                    ),
+                                  child: Image.asset(
+                                    item['imagePath']!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Center(
+                                        child: Text(
+                                          'Image',
+                                          style: TextStyle(
+                                            color: Colors.white.withOpacity(0.3),
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -240,8 +211,9 @@ class _CartScreenState extends State<CartScreen> {
                                           GestureDetector(
                                             onTap: () {
                                               setState(() {
-                                                if (item['quantity'] > 1) {
-                                                  item['quantity']--;
+                                                final current = (item['quantity'] as int);
+                                                if (current > 1) {
+                                                  CartModel.instance.updateQuantity(item['title'], current - 1);
                                                 }
                                               });
                                             },
@@ -273,7 +245,8 @@ class _CartScreenState extends State<CartScreen> {
                                           GestureDetector(
                                             onTap: () {
                                               setState(() {
-                                                item['quantity']++;
+                                                final current = (item['quantity'] as int);
+                                                CartModel.instance.updateQuantity(item['title'], current + 1);
                                               });
                                             },
                                             child: const Padding(
@@ -296,7 +269,7 @@ class _CartScreenState extends State<CartScreen> {
                                     GestureDetector(
                                       onTap: () {
                                         setState(() {
-                                          cartItems.removeAt(index);
+                                          CartModel.instance.removeItem(item['title']);
                                         });
                                       },
                                       child: Icon(
@@ -332,14 +305,14 @@ class _CartScreenState extends State<CartScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Subtotal ($totalItems items)',
+                            'Subtotal (${CartModel.instance.totalItems} items)',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.7),
                               fontSize: 14,
                             ),
                           ),
                           Text(
-                            '\$${totalPrice.toStringAsFixed(2)}',
+                            '\$${CartModel.instance.totalPrice.toStringAsFixed(2)}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -385,7 +358,7 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                           ),
                           Text(
-                            '\$${totalPrice.toStringAsFixed(2)}',
+                            '\$${CartModel.instance.totalPrice.toStringAsFixed(2)}',
                             style: const TextStyle(
                               color: redColor,
                               fontWeight: FontWeight.bold,

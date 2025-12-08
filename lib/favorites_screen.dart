@@ -8,6 +8,8 @@ import 'package:npc/home_page.dart';
 import 'package:npc/profile_screen.dart';
 import 'package:npc/search_screen.dart';
 import 'cart_screen.dart';
+import 'models/favorites_model.dart';
+import 'product_detail.dart';
 
 // Favorites Screen Widget
 class FavoritesScreen extends StatefulWidget {
@@ -26,30 +28,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   static const redColor = Color(0xFFEB2316);
   static const cardColor = Color(0xFF1E1E1E);
 
-  // Sample favorite products
-  List<Map<String, String>> favorites = [
-    {
-      'tag': 'ASUS',
-      'title': 'ASUS ROG Strix G15 - RTX 4080',
-      'description': 'Limited Edition • High-End',
-      'price': '\$2,499',
-    },
-    {
-      'tag': 'Razer',
-      'title': 'Razer Blade 15 - Advanced Edition',
-      'description': 'Limited Edition • High-End',
-      'price': '\$2,899',
-    },
-    {
-      'tag': 'Corsair',
-      'title': 'Corsair Gaming Peripherals Bundle',
-      'description': 'RGB • Wireless',
-      'price': '\$299',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final favorites = FavoritesModel.instance.items;
+
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
@@ -102,7 +84,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             : // Favorites List
             Column(
                 children: [
-                  // Favorites count
+                  // Favorites count and clear button
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: Row(
@@ -117,9 +99,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            // Clear all favorites
                             setState(() {
-                              favorites.clear();
+                              FavoritesModel.instance.clear();
                             });
                           },
                           child: Text(
@@ -142,113 +123,128 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         final product = favorites[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: cardColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                              children: [
-                                // Product Image Placeholder
-                                Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'Image',
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.3),
-                                        fontSize: 10,
-                                      ),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ProductDetail(product: product),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: cardColor,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                children: [
+                                  // Product Image
+                                  Container(
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Image.asset(
+                                      product['imagePath']!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Center(
+                                          child: Text(
+                                            'Image',
+                                            style: TextStyle(
+                                              color: Colors.white.withOpacity(0.3),
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                // Product Details
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Product Tag
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                          border: Border.all(
-                                              color: redColor, width: 1),
-                                        ),
-                                        child: Text(
-                                          product['tag']!.toUpperCase(),
-                                          style: const TextStyle(
-                                            color: redColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 8,
-                                            letterSpacing: 0.5,
+                                  const SizedBox(width: 12),
+                                  // Product Details
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Product Tag
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(6),
+                                            border:
+                                                Border.all(color: redColor, width: 1),
+                                          ),
+                                          child: Text(
+                                            product['tag']!.toUpperCase(),
+                                            style: const TextStyle(
+                                              color: redColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 8,
+                                              letterSpacing: 0.5,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      // Product Title
+                                        const SizedBox(height: 6),
+                                        // Product Title
+                                        Text(
+                                          product['title']!,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        // Product Description
+                                        Text(
+                                          product['description']!,
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  // Price and Remove Button
+                                  Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
                                       Text(
-                                        product['title']!,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
+                                        product['price']!,
                                         style: const TextStyle(
-                                          color: Colors.white,
+                                          color: redColor,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 12,
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
-                                      // Product Description
-                                      Text(
-                                        product['description']!,
-                                        style: const TextStyle(
-                                          color: Colors.white70,
-                                          fontSize: 10,
+                                      const SizedBox(height: 6),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            FavoritesModel.instance
+                                                .removeItem(product['title']);
+                                          });
+                                        },
+                                        child: Icon(
+                                          Icons.favorite,
+                                          color: redColor,
+                                          size: 20,
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                // Price and Remove Button
-                                Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      product['price']!,
-                                      style: const TextStyle(
-                                        color: redColor,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          favorites.removeAt(index);
-                                        });
-                                      },
-                                      child: Icon(
-                                        Icons.favorite,
-                                        color: redColor,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -266,37 +262,30 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   // Build floating navigation bar
   Widget _buildFloatingNav() {
-    return Positioned(
-      bottom: 20,
-      left: 20,
-      right: 20,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(50),
-          border: Border.all(
-            color: redColor.withOpacity(0.3),
-            width: 1,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(50),
+        border: Border.all(color: redColor.withOpacity(0.3), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: redColor.withOpacity(0.2),
+            blurRadius: 20,
+            spreadRadius: 2,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: redColor.withOpacity(0.2),
-              blurRadius: 20,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(0, Icons.home_rounded, 'Home'),
-            _buildNavItem(1, Icons.search_rounded, 'Search'),
-            _buildNavItem(2, Icons.shopping_cart_rounded, 'Cart'),
-            _buildNavItem(3, Icons.favorite_rounded, 'Favorites'),
-            _buildNavItem(4, Icons.person_rounded, 'Profile'),
-          ],
-        ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildNavItem(0, Icons.home_rounded, 'Home'),
+          _buildNavItem(1, Icons.search_rounded, 'Search'),
+          _buildNavItem(2, Icons.shopping_cart_rounded, 'Cart'),
+          _buildNavItem(3, Icons.favorite_rounded, 'Favorites'),
+          _buildNavItem(4, Icons.person_rounded, 'Profile'),
+        ],
       ),
     );
   }
@@ -348,7 +337,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     switch (index) {
       case 0:
         // Navigate to Home
-       Navigator.push(
+        Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const HomePage()),
         );
@@ -368,7 +357,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         );
         break;
       case 3:
-         // Already on Favorites
+        // Already on Favorites
         break;
       case 4:
         // Navigate to Profile

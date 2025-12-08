@@ -4,6 +4,9 @@ import 'search_screen.dart';
 import 'favorites_screen.dart';
 import 'profile_screen.dart';
 import 'cart_screen.dart';
+import 'models/cart_model.dart';
+import 'models/favorites_model.dart';
+import 'product_detail.dart';
 
 void main() {
   runApp(const NullBytePCMainPage());
@@ -48,8 +51,8 @@ class _HomePageState extends State<HomePage> {
       drawer: const MenuDrawer(),
       appBar: AppBar(
         backgroundColor: backgroundColor,
+        automaticallyImplyLeading: false,  // to remove the default hamberuger icon
         elevation: 0,
-        automaticallyImplyLeading: false,  // ← Add this line
         title: const Text(
           'NullByte PC',
           style: TextStyle(
@@ -211,30 +214,70 @@ class _HomePageState extends State<HomePage> {
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
                 childAspectRatio: 0.75,
-                children: const [
+                children: [
                   ProductCard(
                     tag: 'ASUS',
                     title: 'ASUS ROG Strix G15 - RTX 4080',
                     description: 'Limited Edition • High-End',
                     price: '\$2,499',
+                    imagePath: 'assets/images/asus_rog_strix.png',
+                    specs: 'CPU: AMD Ryzen 9\nGPU: RTX 4080\nRAM: 32GB\nStorage: 1TB NVMe',
                   ),
                   ProductCard(
                     tag: 'MSI',
                     title: 'MSI Stealth GS77 - RTX 4090',
                     description: 'Limited Edition • High-End',
                     price: '\$2,499',
+                    imagePath: 'assets/images/msi_stealth.png',
+                    specs: 'CPU: Intel Core i9\nGPU: RTX 4090\nRAM: 32GB\nStorage: 2TB NVMe',
                   ),
                   ProductCard(
                     tag: 'ASUS',
                     title: 'ASUS ROG Flow X16 - OLED',
                     description: 'Limited Edition • High-End',
                     price: '\$2,499',
+                    imagePath: 'assets/images/asus_rog_flow.png',
+                    specs: 'CPU: AMD Ryzen 9\nGPU: RTX 4070\nRAM: 32GB\nStorage: 1TB NVMe',
                   ),
                   ProductCard(
                     tag: 'Razer',
                     title: 'Razer Blade 15 - Advanced Edition',
                     description: 'Limited Edition • High-End',
                     price: '\$2,499',
+                    imagePath: 'assets/images/razer_blade.png',
+                    specs: 'CPU: Intel Core i7\nGPU: RTX 3080\nRAM: 16GB\nStorage: 1TB NVMe',
+                  ),
+                  ProductCard(
+                    tag: 'Alienware',
+                    title: 'Alienware m17 R5 - RTX 3080',
+                    description: 'Premium Gaming • High-End',
+                    price: '\$2,199',
+                    imagePath: 'assets/images/alienware_m17.png',
+                    specs: 'CPU: AMD Ryzen 7\nGPU: RTX 3080\nRAM: 32GB\nStorage: 1TB NVMe',
+                  ),
+                  ProductCard(
+                    tag: 'Corsair',
+                    title: 'Corsair Gaming Bundle',
+                    description: 'RGB • Wireless',
+                    price: '\$299',
+                    imagePath: 'assets/images/corsair_bundle.png',
+                    specs: 'Includes: Keyboard, Mouse, Headset\nConnectivity: Wireless',
+                  ),
+                  ProductCard(
+                    tag: 'Gigabyte',
+                    title: 'Gigabyte AORUS Gaming Laptop',
+                    description: 'High Performance • RTX 4070',
+                    price: '\$1,899',
+                    imagePath: 'assets/images/gigabyte_aorus.png',
+                    specs: 'CPU: Intel Core i7\nGPU: RTX 4070\nRAM: 16GB\nStorage: 1TB NVMe',
+                  ),
+                  ProductCard(
+                    tag: 'ASUS',
+                    title: 'ASUS TUF Gaming A15',
+                    description: 'Durable • Performance',
+                    price: '\$1,499',
+                    imagePath: 'assets/images/asus_tuf.jpg',
+                    specs: 'CPU: AMD Ryzen 7\nGPU: RTX 4060\nRAM: 16GB\nStorage: 512GB NVMe',
                   ),
                 ],
               ),
@@ -250,37 +293,30 @@ class _HomePageState extends State<HomePage> {
 
   // Build floating navigation bar
   Widget _buildFloatingNav() {
-    return Positioned(
-      bottom: 20,
-      left: 20,
-      right: 20,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(50),
-          border: Border.all(
-            color: redColor.withOpacity(0.3),
-            width: 1,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(50),
+        border: Border.all(color: redColor.withOpacity(0.3), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: redColor.withOpacity(0.2),
+            blurRadius: 20,
+            spreadRadius: 2,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: redColor.withOpacity(0.2),
-              blurRadius: 20,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(0, Icons.home_rounded, 'Home'),
-            _buildNavItem(1, Icons.search_rounded, 'Search'),
-            _buildNavItem(2, Icons.shopping_cart_rounded, 'Cart'),
-            _buildNavItem(3, Icons.favorite_rounded, 'Favorites'),
-            _buildNavItem(4, Icons.person_rounded, 'Profile'),
-          ],
-        ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildNavItem(0, Icons.home_rounded, 'Home'),
+          _buildNavItem(1, Icons.search_rounded, 'Search'),
+          _buildNavItem(2, Icons.shopping_cart_rounded, 'Cart'),
+          _buildNavItem(3, Icons.favorite_rounded, 'Favorites'),
+          _buildNavItem(4, Icons.person_rounded, 'Profile'),
+        ],
       ),
     );
   }
@@ -400,11 +436,13 @@ class CategoryCard extends StatelessWidget {
 }
 
 /// Widget for individual featured products
-class ProductCard extends StatelessWidget {
+class ProductCard extends StatefulWidget {
   final String tag;
   final String title;
   final String description;
   final String price;
+  final String imagePath;
+  final String specs;
 
   const ProductCard({
     Key? key,
@@ -412,116 +450,210 @@ class ProductCard extends StatelessWidget {
     required this.title,
     required this.description,
     required this.price,
+    required this.imagePath,
+    required this.specs,
   }) : super(key: key);
+
+  @override
+  State<ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
+  late bool _isFavorited;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFavorited = FavoritesModel.instance.isFavorited(widget.title);
+  }
 
   @override
   Widget build(BuildContext context) {
     const cardColor = Color(0xFF1E1E1E);
     const redColor = Color(0xFFEB2316);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image placeholder (replace with actual product image)
-          Expanded(
-            child: Container(
-              color: Colors.black,
-              child: Center(
-                child: Text(
-                  'No Image',
-                  style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 10),
-                ),
-              ),
-            ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductDetail(product: {
+              'tag': widget.tag,
+              'title': widget.title,
+              'description': widget.description,
+              'price': widget.price,
+              'imagePath': widget.imagePath,
+              'specs': widget.specs,
+            }),
           ),
-
-          const SizedBox(height: 6),
-
-          // Product brand/tag
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: redColor),
-            ),
-            child: Text(
-              tag.toUpperCase(),
-              style: const TextStyle(
-                color: redColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 8,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 6),
-
-          // Product title
-          Text(
-            title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 11,
-            ),
-          ),
-
-          const SizedBox(height: 3),
-
-          // Description
-          Text(
-            description,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 9,
-            ),
-          ),
-
-          const SizedBox(height: 6),
-
-          // Add to Cart button and price
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: redColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Product image with favorite icon
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    color: Colors.black,
+                    child: Image.asset(
+                      widget.imagePath,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Text(
+                            'No Image',
+                            style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 10),
+                          ),
+                        );
+                      },
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    textStyle: const TextStyle(fontSize: 10),
                   ),
-                  onPressed: () {
-                    // Add to cart action
-                  },
-                  child: const Text('Add', style: TextStyle(fontSize: 9)),
-                ),
+                  // Favorite heart icon (top-right)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isFavorited = !_isFavorited;
+                        });
+                        FavoritesModel.instance.toggleFavorite({
+                          'tag': widget.tag,
+                          'title': widget.title,
+                          'description': widget.description,
+                          'price': widget.price,
+                          'imagePath': widget.imagePath,
+                          'specs': widget.specs,
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              _isFavorited ? 'Added to favorites' : 'Removed from favorites',
+                            ),
+                            duration: const Duration(milliseconds: 800),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          shape: BoxShape.circle,
+                        ),
+                        padding: const EdgeInsets.all(6),
+                        child: Icon(
+                          _isFavorited ? Icons.favorite : Icons.favorite_border,
+                          color: redColor,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 4),
-              Text(
-                price,
+            ),
+
+            const SizedBox(height: 6),
+
+            // Product brand/tag
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: redColor),
+              ),
+              child: Text(
+                widget.tag.toUpperCase(),
                 style: const TextStyle(
                   color: redColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: 10,
+                  fontSize: 8,
+                  letterSpacing: 0.5,
                 ),
-              )
-            ],
-          ),
-        ],
+              ),
+            ),
+
+            const SizedBox(height: 6),
+
+            // Product title
+            Text(
+              widget.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 11,
+              ),
+            ),
+
+            const SizedBox(height: 3),
+
+            // Description
+            Text(
+              widget.description,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 9,
+              ),
+            ),
+
+            const SizedBox(height: 6),
+
+            // Add to Cart button and price
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: redColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      textStyle: const TextStyle(fontSize: 10),
+                    ),
+                    onPressed: () {
+                      // Add to cart action
+                      final parsedPrice = double.tryParse(widget.price.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
+                      CartModel.instance.addItem({
+                        'tag': widget.tag,
+                        'title': widget.title,
+                        'price': parsedPrice,
+                        'quantity': 1,
+                        'imagePath': widget.imagePath,
+                      });
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Added to cart')),
+                      );
+                    },
+                    child: const Text('Add to Cart', style: TextStyle(fontSize: 9)),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  widget.price,
+                  style: const TextStyle(
+                    color: redColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
